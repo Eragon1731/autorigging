@@ -3,37 +3,41 @@ import Utils
 
 CTRL_SCALE = 1
 
-def buildFKChain(fk_joints=None, ctrl_scale=CTRL_SCALE, createXtra_grp=False):
+def buildFKChain(fk_joints=None, ctrl_scale=CTRL_SCALE, keyword="fk", createXtra_grp=False):
 
     if fk_joints is None:
         fk_joints = mc.ls(sl=True)
 
-    grps, names = createControllers(selected=fk_joints, ctrl_scale=ctrl_scale, createXtra_grp=createXtra_grp)
+    grps, names = createControllers(selected=fk_joints, ctrl_scale=ctrl_scale, keyword=keyword, createXtra_grp=createXtra_grp)
 
+    print "names: ",names
     for i in range(1,len(grps)):
         mc.parent(grps[i], names[i-1])
 
 
     return names
 
-def createControllers(selected=None, ctrl_scale=CTRL_SCALE, createXtra_grp=False):
-    
+def createControllers(selected=None, ctrl_scale=CTRL_SCALE, keyword="fk", createXtra_grp=False):
+
     #get all selected
     if selected is None:
         selected = mc.ls(sl=True)
 
+    print "selected: ", selected
+
     #check if is a bnd joint
-    currlist = [x for x in selected if "fk" in x]
+    currlist = [x for x in selected if keyword in x]
 
     ctrlnames = []
     grpnames = []
 
+    print "currlist: "
     #creating controllers
     for i in range(len(currlist)):
         #get new names
-        ctrlname = Utils.changeSuffix(currlist[i], "fk", "ctrl", "_")
-        grpname = Utils.changeSuffix(currlist[i], "fk","grp", "_")
-        orientname = Utils.changeSuffix(currlist[i], "fk", "oct", "_")
+        ctrlname = Utils.changeSuffix(currlist[i], keyword, "ctrl", "_")
+        grpname = Utils.changeSuffix(currlist[i], keyword,"grp", "_")
+        orientname = Utils.changeSuffix(currlist[i], keyword, "oct", "_")
         
         #joint position
         jnt_pos = mc.xform(currlist[i], q=True, translation=True, ws=True)
@@ -56,6 +60,8 @@ def createControllers(selected=None, ctrl_scale=CTRL_SCALE, createXtra_grp=False
 
         #get all names
         ctrlnames.append(ctrlname)
+        print "ctrlnames: ", ctrlnames
         grpnames.append(grpname)
+
 
     return grpnames, ctrlnames
